@@ -16,31 +16,66 @@ type Position = {
 };
 type Velocity = Position;
 
+type AttackBox = {
+  position: Position;
+  width: number;
+  height: number;
+  offset: Position;
+};
+
 interface SpriteProps {
   position: Position;
   velocity: Velocity;
+  offset: Position;
+  color?: string;
 }
 
 class Sprite {
   public position: Position;
   public velocity: Velocity;
+  public width: number;
   public height: number;
   public lastKey: string | null;
+  public attackBox: AttackBox;
+  public color: string;
+  public isAttacking: boolean;
 
   constructor(props: SpriteProps) {
     this.position = props.position;
     this.velocity = props.velocity;
+    this.width = 50;
     this.height = 150;
     this.lastKey = null;
+    this.attackBox = {
+      position: { ...this.position },
+      width: 100,
+      height: 50,
+      offset: props.offset,
+    } as AttackBox;
+    this.color = props.color || "#ff0000";
+    this.isAttacking = false;
   }
 
   draw() {
-    ctx.fillStyle = "#ff0000";
-    ctx.fillRect(this.position.x, this.position.y, 50, this.height);
+    ctx.fillStyle = this.color;
+    ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
+
+    // attack box
+    if (this.isAttacking) {
+      ctx.fillStyle = "#00ff00";
+      ctx.fillRect(
+        this.attackBox.position.x,
+        this.attackBox.position.y,
+        this.attackBox.width,
+        this.attackBox.height
+      );
+    }
   }
 
   update() {
     this.draw();
+    this.attackBox.position.x = this.position.x + this.attackBox.offset.x;
+    this.attackBox.position.y = this.position.y;
 
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
@@ -51,16 +86,26 @@ class Sprite {
       this.velocity.y += gravity;
     }
   }
+
+  attack() {
+    this.isAttacking = true;
+    setTimeout(() => {
+      this.isAttacking = false;
+    }, 100);
+  }
 }
 
 const player = new Sprite({
   position: { x: 0, y: 0 },
   velocity: { x: 0, y: 0 },
+  offset: { x: 0, y: 0 },
 });
 
 const enemy = new Sprite({
   position: { x: 400, y: 100 },
   velocity: { x: 0, y: 0 },
+  offset: { x: -50, y: 0 },
+  color: "#00fff0",
 });
 
 const keys = {
@@ -83,6 +128,26 @@ const keys = {
     pressed: false,
   },
 };
+
+interface RectangularCollisionProps {
+  rectangle1: Sprite;
+  rectangle2: Sprite;
+}
+
+function rectangularCollision({
+  rectangle1,
+  rectangle2,
+}: RectangularCollisionProps): boolean {
+  return (
+    rectangle1.attackBox.position.x + rectangle1.attackBox.width >=
+      rectangle2.position.x &&
+    rectangle1.attackBox.position.x <=
+      rectangle2.position.x + rectangle2.width &&
+    rectangle1.attackBox.position.y + rectangle1.attackBox.height >=
+      rectangle2.position.y &&
+    rectangle1.attackBox.position.y <= rectangle2.position.y + rectangle2.height
+  );
+}
 
 function animate() {
   window.requestAnimationFrame(animate);
@@ -107,6 +172,22 @@ function animate() {
   } else if (keys.ArrowRight.pressed && enemy.lastKey === "ArrowRight") {
     enemy.velocity.x = 5;
   }
+
+  //detect for collision
+  if (
+    rectangularCollision({ rectangle1: player, rectangle2: enemy }) &&
+    player.isAttacking
+  ) {
+    player.isAttacking = false;
+    console.log("palyer collision");
+  }
+  if (
+    rectangularCollision({ rectangle1: enemy, rectangle2: player }) &&
+    enemy.isAttacking
+  ) {
+    enemy.isAttacking = false;
+    console.log("enemy collision");
+  }
 }
 
 animate();
@@ -124,6 +205,10 @@ window.addEventListener("keydown", (e: KeyboardEvent) => {
     case "w":
       player.velocity.y = -20;
       break;
+    case " ":
+      player.attack();
+      break;
+
     case "ArrowRight":
       keys.ArrowRight.pressed = true;
       enemy.lastKey = "ArrowRight";
@@ -135,6 +220,8 @@ window.addEventListener("keydown", (e: KeyboardEvent) => {
     case "ArrowUp":
       enemy.velocity.y = -20;
       break;
+    case "ArrowDown":
+      enemy.isAttacking = true;
   }
 });
 
