@@ -1,9 +1,71 @@
 import "./style.css";
 
 const canvas = document.querySelector<HTMLCanvasElement>("canvas")!;
-const ctx = canvas.getContext("2d");
+const ctx = canvas.getContext("2d")!;
 
 canvas.width = 1024;
 canvas.height = 576;
 
-ctx?.fillRect(0, 0, canvas.width, canvas.height);
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+const gravity = 0.2;
+
+type Position = {
+  x: number;
+  y: number;
+};
+type Velocity = Position;
+
+interface SpriteProps {
+  position: Position;
+  velocity: Velocity;
+}
+
+class Sprite {
+  public position: Position;
+  public velocity: Velocity;
+  public height: number;
+
+  constructor(props: SpriteProps) {
+    this.position = props.position;
+    this.velocity = props.velocity;
+    this.height = 150;
+  }
+
+  draw() {
+    ctx.fillStyle = "#ff0000";
+    ctx.fillRect(this.position.x, this.position.y, 50, this.height);
+  }
+
+  update() {
+    this.draw();
+
+    this.position.y += this.velocity.y;
+
+    if (this.position.y + this.height + this.velocity.y >= canvas.height) {
+      this.velocity.y = 0;
+    } else {
+      this.velocity.y += gravity;
+    }
+  }
+}
+
+const player = new Sprite({
+  position: { x: 0, y: 0 },
+  velocity: { x: 0, y: 0 },
+});
+
+const enemy = new Sprite({
+  position: { x: 400, y: 100 },
+  velocity: { x: 0, y: 0 },
+});
+
+function animate() {
+  window.requestAnimationFrame(animate);
+  ctx.fillStyle = "#000000";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  player.update();
+  enemy.update();
+}
+
+animate();
