@@ -3,10 +3,19 @@ import { SpriteProps, Position, Sprite } from "./Sprite";
 
 type Velocity = Position;
 
+type SpritesProps = {
+  [key: string]: {
+    imageSrc: string;
+    framesMax: number;
+    image?: HTMLImageElement;
+  };
+};
+
 interface FighterProps extends SpriteProps {
   velocity: Velocity;
   offset: Position;
   color?: string;
+  sprites: SpritesProps;
 }
 
 type AttackBox = {
@@ -23,6 +32,7 @@ class Fighter extends Sprite {
   public color: string;
   public isAttacking: boolean;
   public health: number;
+  public sprites: SpritesProps;
 
   constructor({
     canvas,
@@ -34,6 +44,7 @@ class Fighter extends Sprite {
     imageSrc,
     scale = 1,
     framesMax = 1,
+    sprites,
   }: FighterProps) {
     super({
       canvas,
@@ -60,6 +71,12 @@ class Fighter extends Sprite {
     this.framesCurrent = 0;
     this.framesElapsed = 0;
     this.framesHold = 5;
+    this.sprites = sprites;
+
+    for (const sprite in sprites) {
+      this.sprites[sprite].image = new Image();
+      this.sprites[sprite].image!.src = sprites[sprite].imageSrc;
+    }
   }
 
   update() {
