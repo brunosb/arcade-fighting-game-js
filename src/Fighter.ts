@@ -1,9 +1,9 @@
-import { Position, Velocity } from "./main";
+import { gravity } from "./main";
+import { SpriteProps, Position, Sprite } from "./Sprite";
 
-interface FighterProps {
-  canvas: HTMLCanvasElement;
-  ctx: CanvasRenderingContext2D;
-  position: Position;
+type Velocity = Position;
+
+interface FighterProps extends SpriteProps {
   velocity: Velocity;
   offset: Position;
   color?: string;
@@ -16,26 +16,35 @@ type AttackBox = {
   offset: Position;
 };
 
-const gravity = 0.7;
-
-class Fighter {
-  public position: Position;
+class Fighter extends Sprite {
   public velocity: Velocity;
-  public width: number;
-  public height: number;
   public lastKey: string | null;
   public attackBox: AttackBox;
   public color: string;
   public isAttacking: boolean;
   public health: number;
-  public canvas: HTMLCanvasElement;
-  public ctx: CanvasRenderingContext2D;
 
-  constructor(props: FighterProps) {
-    this.canvas = props.canvas;
-    this.ctx = props.ctx;
-    this.position = props.position;
-    this.velocity = props.velocity;
+  constructor({
+    canvas,
+    ctx,
+    position,
+    velocity,
+    color = "#ff0000",
+    offset = { x: 0, y: 0 },
+    imageSrc,
+    scale = 1,
+    framesMax = 1,
+  }: FighterProps) {
+    super({
+      canvas,
+      ctx,
+      position,
+      imageSrc,
+      scale,
+      framesMax,
+      offset,
+    });
+    this.velocity = velocity;
     this.width = 50;
     this.height = 150;
     this.lastKey = null;
@@ -43,36 +52,20 @@ class Fighter {
       position: { ...this.position },
       width: 100,
       height: 50,
-      offset: props.offset,
+      offset: offset,
     } as AttackBox;
-    this.color = props.color || "#ff0000";
+    this.color = color;
     this.isAttacking = false;
     this.health = 100;
-  }
-
-  draw() {
-    this.ctx.fillStyle = this.color;
-    this.ctx.fillRect(
-      this.position.x,
-      this.position.y,
-      this.width,
-      this.height
-    );
-
-    // attack box
-    if (this.isAttacking) {
-      this.ctx.fillStyle = "#00ff00";
-      this.ctx.fillRect(
-        this.attackBox.position.x,
-        this.attackBox.position.y,
-        this.attackBox.width,
-        this.attackBox.height
-      );
-    }
+    this.framesCurrent = 0;
+    this.framesElapsed = 0;
+    this.framesHold = 5;
   }
 
   update() {
     this.draw();
+    this.animateFrames();
+
     this.attackBox.position.x = this.position.x + this.attackBox.offset.x;
     this.attackBox.position.y = this.position.y;
 

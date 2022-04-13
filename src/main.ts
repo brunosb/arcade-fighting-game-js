@@ -14,14 +14,10 @@ const ctx = canvas.getContext("2d")!;
 canvas.width = 1024;
 canvas.height = 576;
 
+const gravity = 0.7;
+export { gravity };
+
 ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-export type Position = {
-  x: number;
-  y: number;
-};
-
-export type Velocity = Position;
 
 const background = new Sprite({
   canvas,
@@ -44,7 +40,10 @@ const player = new Fighter({
   ctx,
   position: { x: 0, y: 0 },
   velocity: { x: 0, y: 0 },
-  offset: { x: 0, y: 0 },
+  offset: { x: 215, y: 157 },
+  imageSrc: "./images/samuraiMack/Idle.png",
+  framesMax: 8,
+  scale: 2.5,
 });
 
 const enemy = new Fighter({
@@ -52,8 +51,11 @@ const enemy = new Fighter({
   ctx,
   position: { x: 400, y: 100 },
   velocity: { x: 0, y: 0 },
-  offset: { x: -50, y: 0 },
+  offset: { x: 215, y: 157 },
   color: "#00fff0",
+  imageSrc: "./images/samuraiMack/Idle.png",
+  framesMax: 8,
+  scale: 2.5,
 });
 
 const keys = {
@@ -88,7 +90,7 @@ function animate() {
   shop.update();
 
   player.update();
-  enemy.update();
+  //enemy.update();
 
   player.velocity.x = 0;
   enemy.velocity.x = 0;
