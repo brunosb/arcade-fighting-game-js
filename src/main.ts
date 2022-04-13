@@ -151,6 +151,42 @@ function rectangularCollision({
   );
 }
 
+type DetermineWinnerProps = {
+  player: Sprite;
+  enemy: Sprite;
+  timerId: number;
+};
+
+function determineWinner({ player, enemy, timerId }: DetermineWinnerProps) {
+  clearTimeout(timerId);
+  (document.querySelector("#display-text")! as HTMLDivElement).style.display =
+    "flex";
+
+  if (player.health === enemy.health) {
+    document.querySelector("#display-text")!.innerHTML = "Tie";
+  } else if (player.health > enemy.health) {
+    document.querySelector("#display-text")!.innerHTML = "Player 1 Wins";
+  } else if (player.health < enemy.health) {
+    document.querySelector("#display-text")!.innerHTML = "Player 2 Wins";
+  }
+}
+
+let timer = 60;
+let timerId: number;
+function decreaseTimer() {
+  timerId = setTimeout(decreaseTimer, 1000);
+  if (timer > 0) {
+    timer--;
+    document.querySelector("#timer")!.innerHTML = timer.toString();
+  }
+
+  if (timer === 0) {
+    determineWinner({ player, enemy, timerId });
+  }
+}
+
+decreaseTimer();
+
 function animate() {
   window.requestAnimationFrame(animate);
   ctx.fillStyle = "#000000";
@@ -197,6 +233,11 @@ function animate() {
     player.health -= 20;
     barPlayer.style.width = player.health + "%";
     console.log("enemy collision");
+  }
+
+  //end game based on health
+  if (player.health <= 0 || enemy.health <= 0) {
+    determineWinner({ player, enemy, timerId });
   }
 }
 
