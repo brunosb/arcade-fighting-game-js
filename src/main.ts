@@ -39,6 +39,7 @@ class Sprite {
   public attackBox: AttackBox;
   public color: string;
   public isAttacking: boolean;
+  public health: number;
 
   constructor(props: SpriteProps) {
     this.position = props.position;
@@ -54,6 +55,7 @@ class Sprite {
     } as AttackBox;
     this.color = props.color || "#ff0000";
     this.isAttacking = false;
+    this.health = 100;
   }
 
   draw() {
@@ -179,6 +181,9 @@ function animate() {
     player.isAttacking
   ) {
     player.isAttacking = false;
+    const barEnemy = document.querySelector("#enemyHealth")! as HTMLDivElement;
+    enemy.health -= 20;
+    barEnemy.style.width = enemy.health + "%";
     console.log("palyer collision");
   }
   if (
@@ -186,6 +191,11 @@ function animate() {
     enemy.isAttacking
   ) {
     enemy.isAttacking = false;
+    const barPlayer = document.querySelector(
+      "#playerHealth"
+    )! as HTMLDivElement;
+    player.health -= 20;
+    barPlayer.style.width = player.health + "%";
     console.log("enemy collision");
   }
 }
