@@ -28,7 +28,7 @@ function determineWinner({ player, enemy, timerId }: DetermineWinnerProps) {
 let timer = 60;
 let timerId: number;
 function decreaseTimer({ player, enemy }: DecreaseTimerProps) {
-  timerId = setTimeout(decreaseTimer, 1000);
+  timerId = setTimeout(() => decreaseTimer({ player, enemy }), 1000);
   if (timer > 0) {
     timer--;
     document.querySelector("#timer")!.innerHTML = timer.toString();
