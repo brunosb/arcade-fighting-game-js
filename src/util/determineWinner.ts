@@ -17,11 +17,11 @@ function determineWinner({ player, enemy, timerId }: DetermineWinnerProps) {
     "flex";
 
   if (player.health === enemy.health) {
-    document.querySelector("#display-text")!.innerHTML = "Tie";
+    document.querySelector("#display-text")!.innerHTML = "Empate";
   } else if (player.health > enemy.health) {
-    document.querySelector("#display-text")!.innerHTML = "Player 1 Wins";
+    document.querySelector("#display-text")!.innerHTML = "Player 1 Ganhou";
   } else if (player.health < enemy.health) {
-    document.querySelector("#display-text")!.innerHTML = "Player 2 Wins";
+    document.querySelector("#display-text")!.innerHTML = "Player 2 Ganhou";
   }
 }
 
