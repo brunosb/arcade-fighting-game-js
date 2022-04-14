@@ -7,6 +7,7 @@ import {
   determineWinner,
   timerId,
 } from "./util/determineWinner";
+import gsap from "gsap";
 
 const canvas = document.querySelector<HTMLCanvasElement>("canvas")!;
 const ctx = canvas.getContext("2d")!;
@@ -213,8 +214,9 @@ function animate() {
   ) {
     enemy.takeHit();
     player.isAttacking = false;
-    const barEnemy = document.querySelector("#enemyHealth")! as HTMLDivElement;
-    barEnemy.style.width = enemy.health + "%";
+    gsap.to("#enemyHealth", {
+      width: enemy.health + "%",
+    });
     console.log("palyer collision");
   }
 
@@ -230,10 +232,9 @@ function animate() {
   ) {
     player.takeHit();
     enemy.isAttacking = false;
-    const barPlayer = document.querySelector(
-      "#playerHealth"
-    )! as HTMLDivElement;
-    barPlayer.style.width = player.health + "%";
+    gsap.to("#playerHealth", {
+      width: player.health + "%",
+    });
     console.log("enemy collision");
   }
 
