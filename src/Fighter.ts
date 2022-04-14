@@ -16,23 +16,24 @@ interface FighterProps extends SpriteProps {
   offset: Position;
   color?: string;
   sprites: SpritesProps;
+  attackBox: AttackBox;
 }
 
 type AttackBox = {
-  position: Position;
-  width: number;
-  height: number;
+  position?: Position;
+  width?: number;
+  height?: number;
   offset: Position;
 };
 
 class Fighter extends Sprite {
   public velocity: Velocity;
   public lastKey: string | null;
-  public attackBox: AttackBox;
   public color: string;
   public isAttacking: boolean;
   public health: number;
   public sprites: SpritesProps;
+  public attackBox: AttackBox;
 
   constructor({
     canvas,
@@ -45,6 +46,7 @@ class Fighter extends Sprite {
     scale = 1,
     framesMax = 1,
     sprites,
+    attackBox,
   }: FighterProps) {
     super({
       canvas,
@@ -60,11 +62,14 @@ class Fighter extends Sprite {
     this.height = 150;
     this.lastKey = null;
     this.attackBox = {
-      position: { ...this.position },
-      width: 100,
-      height: 50,
-      offset: offset,
-    } as AttackBox;
+      position: {
+        x: this.position.x,
+        y: this.position.y,
+      },
+      offset: attackBox.offset,
+      width: attackBox.width,
+      height: attackBox.height,
+    };
     this.color = color;
     this.isAttacking = false;
     this.health = 100;
@@ -83,8 +88,17 @@ class Fighter extends Sprite {
     this.draw();
     this.animateFrames();
 
-    this.attackBox.position.x = this.position.x + this.attackBox.offset.x;
-    this.attackBox.position.y = this.position.y;
+    // attack boxes
+    this.attackBox.position!.x = this.position.x + this.attackBox.offset.x;
+    this.attackBox.position!.y = this.position.y + this.attackBox.offset.y;
+
+    // draw attackbox
+    // this.ctx.fillRect(
+    //   this.attackBox.position!.x,
+    //   this.attackBox.position!.y,
+    //   this.attackBox.width!,
+    //   this.attackBox.height!
+    // );
 
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
@@ -104,9 +118,6 @@ class Fighter extends Sprite {
   attack() {
     this.switchSprite("attack1");
     this.isAttacking = true;
-    setTimeout(() => {
-      this.isAttacking = false;
-    }, 100);
   }
 
   switchSprite(sprite: string) {

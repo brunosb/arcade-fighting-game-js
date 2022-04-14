@@ -66,6 +66,14 @@ const player = new Fighter({
       framesMax: 6,
     },
   },
+  attackBox: {
+    offset: {
+      x: 100,
+      y: 50,
+    },
+    width: 160,
+    height: 50,
+  },
 });
 
 const enemy = new Fighter({
@@ -99,6 +107,14 @@ const enemy = new Fighter({
       imageSrc: "./images/kenji/Attack1.png",
       framesMax: 4,
     },
+  },
+  attackBox: {
+    offset: {
+      x: -170,
+      y: 50,
+    },
+    width: 170,
+    height: 50,
   },
 });
 
@@ -176,7 +192,8 @@ function animate() {
   //detect for collision
   if (
     rectangularCollision({ rectangle1: player, rectangle2: enemy }) &&
-    player.isAttacking
+    player.isAttacking &&
+    player.framesCurrent === 4
   ) {
     player.isAttacking = false;
     const barEnemy = document.querySelector("#enemyHealth")! as HTMLDivElement;
@@ -184,9 +201,16 @@ function animate() {
     barEnemy.style.width = enemy.health + "%";
     console.log("palyer collision");
   }
+
+  // if player misses
+  if (player.isAttacking && player.framesCurrent === 4) {
+    player.isAttacking = false;
+  }
+
   if (
     rectangularCollision({ rectangle1: enemy, rectangle2: player }) &&
-    enemy.isAttacking
+    enemy.isAttacking &&
+    player.framesCurrent === 2
   ) {
     enemy.isAttacking = false;
     const barPlayer = document.querySelector(
@@ -195,6 +219,11 @@ function animate() {
     player.health -= 20;
     barPlayer.style.width = player.health + "%";
     console.log("enemy collision");
+  }
+
+  // if enemy misses
+  if (enemy.isAttacking && enemy.framesCurrent === 2) {
+    enemy.isAttacking = false;
   }
 
   //end game based on health
